@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+.venv/
+venv/
+
+# Secrets
+.env
+
+
+# IDE
+.vscode/
+.idea/
+
+# Runtime generated state
+checkpoints/
+goals/
+attention/
+accepted/
+traces/
+runs/
+
+# Python test cache
+.pytest_cache/
+
+# OS
+.DS_Store
+Thumbs.db

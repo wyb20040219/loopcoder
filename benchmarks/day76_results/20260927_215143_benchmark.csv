@@ -1,0 +1,7 @@
+﻿system,case_id,benchmark_passed,runtime_accepted,agent_error,elapsed_seconds,rate_limit_wait_seconds,active_seconds,steps,llm_calls,tool_calls,verify_calls,verify_failures,recovery_success,changed_files,protected_violations,unexpected_changes
+bare,duplicate_email,True,,,68.02,53.44,14.58,4,4,6,1,0,False,"[""app/services/user_service.py""]",[],[]
+loopcoder,duplicate_email,True,True,,100.64,78.28,22.37,5,5,9,1,0,False,"[""app/services/user_service.py""]",[],[]
+bare,email_normalization,True,,,103.43,94.7,8.73,5,5,7,1,0,False,"[""app/services/user_service.py"", ""app/utils/email_utils.py""]",[],[]
+loopcoder,email_normalization,True,True,,167.17,153.2,13.97,8,8,9,1,0,False,"[""app/services/user_service.py"", ""app/utils/email_utils.py""]",[],[]
+bare,account_transfer,True,,,82.55,76.31,6.25,4,4,6,1,0,False,"[""app/services/transfer_service.py""]",[],[]
+loopcoder,account_transfer,True,True,,104.13,92.89,11.24,5,5,7,1,0,False,"[""app/services/transfer_service.py""]",[],[]

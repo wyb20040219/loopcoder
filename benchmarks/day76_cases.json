@@ -1,0 +1,58 @@
+[
+  {
+    "id": "duplicate_email",
+    "source_repo": "real_cases/fastapi_user_api",
+    "task": "修复用户创建逻辑。\n\n要求：\n1. 同一个 email 不能重复创建用户。\n2. 重复 email 时必须抛出：ValueError(\"email already exists\")\n3. 不允许修改 tests 目录中的测试文件。\n4. 尽量只修改与该业务规则直接相关的代码。\n5. 最终必须通过：python -m pytest -q",
+    "verify_command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "protected_paths": [
+      "tests"
+    ],
+    "allowed_changes": [
+      "app/services/user_service.py"
+    ],
+    "max_steps": 16
+  },
+  {
+    "id": "email_normalization",
+    "source_repo": "real_cases/fastapi_email_normalization",
+    "task": "实现邮箱规范化与大小写无关的重复邮箱检测。\n\n要求：\n1. 新增 app/utils/email_utils.py。\n2. 实现 normalize_email(email)：去除首尾空格并转换为小写。\n3. create_user 必须使用规范化后的 email。\n4. 重复 email 检测必须忽略大小写。\n5. 不允许修改 tests 目录。\n6. 最终必须通过：python -m pytest -q",
+    "verify_command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "protected_paths": [
+      "tests"
+    ],
+    "allowed_changes": [
+  "app/services/user_service.py",
+  "app/repositories/user_repository.py",
+  "app/utils/email_utils.py"
+],
+    "max_steps": 20
+  },
+  {
+    "id": "account_transfer",
+    "source_repo": "real_cases/account_transfer_api",
+    "task": "修复账户转账业务逻辑。\n\n要求：\n1. amount <= 0 时抛出 ValueError(\"amount must be positive\")。\n2. 余额不足时抛出 ValueError(\"insufficient funds\")。\n3. 不允许向同一个账户转账，必须抛出 ValueError(\"cannot transfer to same account\")。\n4. 任何失败都不能改变账户余额。\n5. 不允许修改 tests 目录。\n6. 最终必须通过：python -m pytest -q",
+    "verify_command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "protected_paths": [
+      "tests"
+    ],
+    "allowed_changes": [
+      "app/services/transfer_service.py"
+    ],
+    "max_steps": 20
+  }
+]
