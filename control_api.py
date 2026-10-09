@@ -65,7 +65,10 @@ def health():
             "ok",
 
         "service":
-            "loopcoder-control-plane"
+            "loopcoder-control-plane",
+
+        "version":
+            app.version
     }
 
 
