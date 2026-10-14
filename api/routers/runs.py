@@ -1,7 +1,9 @@
 
+from typing import Annotated
+
 from fastapi import (
     APIRouter,
-    HTTPException,
+    Depends,
     Query
 )
 
@@ -11,6 +13,15 @@ from api.schemas import (
     RunsResponse
 )
 
+from api.dependencies import (
+    RunSearchCallable,
+    get_run_search_service
+)
+
+from api.errors import (
+    RunNotFoundError
+)
+
 from control_store import (
     get_run_history,
     get_run_detail
@@ -18,10 +29,6 @@ from control_store import (
 
 from run_metrics import (
     build_run_metrics
-)
-
-from run_search_service import (
-    search_runs
 )
 
 
@@ -59,8 +66,9 @@ def runs(
 
 
 # ==========================================
-# 2. 新增运行记录搜索接口
+# 2. 运行记录搜索接口
 # POST /runs/search
+# 今天新增 Depends
 # ==========================================
 
 @router.post(
@@ -68,10 +76,15 @@ def runs(
     response_model=RunsResponse
 )
 def search_run_history(
-    payload: RunSearchRequest
+    payload: RunSearchRequest,
+
+    service: Annotated[
+        RunSearchCallable,
+        Depends(get_run_search_service)
+    ]
 ):
 
-    records = search_runs(
+    records = service(
         limit=payload.limit,
         min_event_count=payload.min_event_count,
         run_id_contains=payload.run_id_contains
@@ -86,6 +99,7 @@ def search_run_history(
 # ==========================================
 # 3. 原有运行详情接口
 # GET /runs/{run_id}
+# 今天使用自定义业务异常
 # ==========================================
 
 @router.get(
@@ -107,10 +121,7 @@ def run_detail(
     )
 
     if result is None:
-        raise HTTPException(
-            status_code=404,
-            detail="找不到该Run Trace"
-        )
+        raise RunNotFoundError()
 
     return result
 
@@ -130,9 +141,6 @@ def run_metrics(
     )
 
     if metrics is None:
-        raise HTTPException(
-            status_code=404,
-            detail="找不到该Run Trace"
-        )
+        raise RunNotFoundError()
 
     return metrics
