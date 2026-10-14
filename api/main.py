@@ -1,3 +1,4 @@
+import logging
 
 from fastapi import FastAPI
 
@@ -21,9 +22,28 @@ from api.handlers import (
     register_exception_handlers
 )
 
+from api.middleware import (
+    register_http_middleware
+)
+
 
 # ==========================================
-# 创建 FastAPI 应用
+# 基础日志配置
+# ==========================================
+
+logging.basicConfig(
+    level=logging.INFO,
+    format=(
+        "%(asctime)s "
+        "%(levelname)s "
+        "%(name)s "
+        "%(message)s"
+    )
+)
+
+
+# ==========================================
+# FastAPI App
 # ==========================================
 
 app = FastAPI(
@@ -40,20 +60,39 @@ app = FastAPI(
 
 
 # ==========================================
-# 注册统一异常处理器
+# Middleware
 # ==========================================
 
-register_exception_handlers(app)
+register_http_middleware(
+    app
+)
 
 
 # ==========================================
-# 注册 API Router
+# Exception Handler
 # ==========================================
 
-app.include_router(system_router)
+register_exception_handlers(
+    app
+)
 
-app.include_router(control_router)
 
-app.include_router(runs_router)
+# ==========================================
+# Routers
+# ==========================================
 
-app.include_router(dashboard_router)
+app.include_router(
+    system_router
+)
+
+app.include_router(
+    control_router
+)
+
+app.include_router(
+    runs_router
+)
+
+app.include_router(
+    dashboard_router
+)
