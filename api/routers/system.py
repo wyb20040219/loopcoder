@@ -1,7 +1,22 @@
 import asyncio
 
+from typing import Annotated
+
 from fastapi import (
-    APIRouter
+    APIRouter,
+    Depends
+)
+
+from sqlalchemy import (
+    text
+)
+
+from sqlalchemy.exc import (
+    SQLAlchemyError
+)
+
+from sqlalchemy.orm import (
+    Session
 )
 
 from api.errors import (
@@ -9,6 +24,7 @@ from api.errors import (
 )
 
 from api.schemas import (
+    DatabaseHealthResponse,
     HealthResponse,
     ReadinessResponse
 )
@@ -17,11 +33,13 @@ from control_store import (
     get_overview
 )
 
+from db.session import (
+    get_db
+)
+
 
 router = APIRouter(
-    tags=[
-        "System"
-    ]
+    tags=["System"]
 )
 
 
@@ -36,16 +54,14 @@ router = APIRouter(
 async def health():
 
     return {
-        "status":
-            "ok",
-
+        "status": "ok",
         "service":
             "loopcoder-control-plane"
     }
 
 
 # ==========================================
-# Readiness
+# Control Plane Readiness
 # ==========================================
 
 @router.get(
@@ -56,19 +72,9 @@ async def readiness():
 
     try:
 
-        # ==================================
-        # get_overview 是同步函数。
-        #
-        # 它最终涉及文件系统读取，
-        # 所以不要直接阻塞 Event Loop。
-        #
-        # 将同步函数交给工作线程执行。
-        # ==================================
-
         await asyncio.to_thread(
             get_overview
         )
-
 
     except Exception as exc:
 
@@ -81,12 +87,53 @@ async def readiness():
 
 
     return {
-        "status":
-            "ready",
-
+        "status": "ready",
         "service":
             "loopcoder-control-plane",
-
         "control_plane_readable":
             True
+    }
+
+
+# ==========================================
+# Database Health
+# ==========================================
+
+@router.get(
+    "/health/db",
+    response_model=(
+        DatabaseHealthResponse
+    )
+)
+def database_health(
+    db: Annotated[
+        Session,
+        Depends(get_db)
+    ]
+):
+
+    try:
+
+        result = db.execute(
+            text("SELECT 1")
+        )
+
+        value = (
+            result.scalar_one()
+        )
+
+    except SQLAlchemyError as exc:
+
+        raise ServiceUnavailableError(
+            detail=(
+                "MySQL数据库"
+                "暂时无法访问"
+            )
+        ) from exc
+
+
+    return {
+        "status": "ready",
+        "database": "mysql",
+        "check": value == 1
     }

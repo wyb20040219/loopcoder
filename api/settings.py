@@ -4,24 +4,20 @@ from pydantic import Field
 
 from pydantic_settings import (
     BaseSettings,
-    SettingsConfigDict
+    SettingsConfigDict,
 )
 
 
 class ApiSettings(BaseSettings):
 
-    # ======================================
-    # Pydantic Settings 配置
-    # ======================================
-
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
-        extra="ignore"
+        extra="ignore",
     )
 
     # ======================================
-    # API 基础配置
+    # API
     # ======================================
 
     app_name: str = (
@@ -52,20 +48,27 @@ class ApiSettings(BaseSettings):
     )
 
     # ======================================
-    # 将字符串转换成列表
+    # Database
     # ======================================
+
+    database_url: str = (
+        "mysql+pymysql://"
+        "loopcoder:loopcoder_dev_2026"
+        "@127.0.0.1:3306/"
+        "loopcoder?charset=utf8mb4"
+    )
+
+    sql_echo: bool = False
 
     @property
     def cors_origin_list(
-        self
+        self,
     ) -> list[str]:
 
         return [
             origin.strip()
-
             for origin
             in self.cors_origins.split(",")
-
             if origin.strip()
         ]
 

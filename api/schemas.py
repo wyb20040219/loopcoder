@@ -31,6 +31,16 @@ class ReadinessResponse(BaseModel):
 
     control_plane_readable: bool
 
+class DatabaseHealthResponse(
+    BaseModel
+):
+
+    status: Literal["ready"]
+
+    database: Literal["mysql"]
+
+    check: bool
+
 
 # ==========================================
 # 3. Run 摘要
