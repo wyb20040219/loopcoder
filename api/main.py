@@ -1,108 +1,80 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import (
+    FastAPI,
+)
 
 from fastapi.middleware.cors import (
-    CORSMiddleware
+    CORSMiddleware,
 )
 
 from api.handlers import (
-    register_exception_handlers
+    register_exception_handlers,
 )
 
 from api.lifespan import (
-    lifespan
+    lifespan,
 )
 
 from api.middleware import (
-    register_http_middleware
+    register_http_middleware,
 )
 
-from api.routers.control import (
-    router as control_router
-)
-
-from api.routers.dashboard import (
-    router as dashboard_router
-)
-
-from api.routers.runs import (
-    router as runs_router
-)
-
-from api.routers.system import (
-    router as system_router
+from api.routers import (
+    control,
+    dashboard,
+    db_runs,
+    runs,
+    system,
 )
 
 from api.settings import (
-    get_api_settings
+    get_api_settings,
 )
 
 
-# ==========================================
-# Settings
-# ==========================================
+settings = get_api_settings()
 
-settings = (
-    get_api_settings()
-)
-
-
-# ==========================================
-# Logging
-# ==========================================
 
 logging.basicConfig(
     level=getattr(
         logging,
         settings.log_level.upper(),
-        logging.INFO
+        logging.INFO,
     ),
     format=(
         "%(asctime)s "
         "%(levelname)s "
         "%(name)s "
         "%(message)s"
-    )
+    ),
 )
 
-
-# ==========================================
-# FastAPI App
-# ==========================================
 
 app = FastAPI(
     title=settings.app_name,
-    description=(
-        "LoopCoder长程Coding Agent的"
-        "Control Plane接口。"
-    ),
     version=settings.app_version,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 
 # ==========================================
-# CORS Middleware
+# CORS
 # ==========================================
 
 app.add_middleware(
     CORSMiddleware,
-
     allow_origins=(
         settings.cors_origin_list
     ),
-
     allow_credentials=True,
-
     allow_methods=["*"],
-
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 
 # ==========================================
-# HTTP Middleware
+# Middleware
 # ==========================================
 
 register_http_middleware(
@@ -111,7 +83,7 @@ register_http_middleware(
 
 
 # ==========================================
-# Exception Handler
+# Exception Handlers
 # ==========================================
 
 register_exception_handlers(
@@ -124,17 +96,21 @@ register_exception_handlers(
 # ==========================================
 
 app.include_router(
-    system_router
+    system.router
 )
 
 app.include_router(
-    control_router
+    control.router
 )
 
 app.include_router(
-    runs_router
+    runs.router
 )
 
 app.include_router(
-    dashboard_router
+    dashboard.router
+)
+
+app.include_router(
+    db_runs.router
 )

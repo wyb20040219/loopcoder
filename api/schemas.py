@@ -1,15 +1,20 @@
-from typing import Any, Literal
+from datetime import datetime
+
+from typing import (
+    Any,
+    Literal,
+)
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    field_validator
+    field_validator,
 )
 
 
 # ==========================================
-# 1. 健康检查响应
+# Health
 # ==========================================
 
 class HealthResponse(BaseModel):
@@ -19,10 +24,6 @@ class HealthResponse(BaseModel):
     service: str
 
 
-# ==========================================
-# 2. Readiness 响应
-# ==========================================
-
 class ReadinessResponse(BaseModel):
 
     status: Literal["ready"]
@@ -30,6 +31,7 @@ class ReadinessResponse(BaseModel):
     service: str
 
     control_plane_readable: bool
+
 
 class DatabaseHealthResponse(
     BaseModel
@@ -43,7 +45,7 @@ class DatabaseHealthResponse(
 
 
 # ==========================================
-# 3. Run 摘要
+# 原文件系统 Run Schema
 # ==========================================
 
 class RunSummary(BaseModel):
@@ -63,10 +65,6 @@ class RunSummary(BaseModel):
     event_counts: dict[str, int]
 
 
-# ==========================================
-# 4. Run 列表
-# ==========================================
-
 class RunsResponse(BaseModel):
 
     count: int = Field(
@@ -75,10 +73,6 @@ class RunsResponse(BaseModel):
 
     runs: list[RunSummary]
 
-
-# ==========================================
-# 5. Run Detail
-# ==========================================
 
 class RunDetailResponse(BaseModel):
 
@@ -89,10 +83,6 @@ class RunDetailResponse(BaseModel):
     ]
 
 
-# ==========================================
-# 6. Run Search Request
-# ==========================================
-
 class RunSearchRequest(BaseModel):
 
     model_config = ConfigDict(
@@ -102,18 +92,18 @@ class RunSearchRequest(BaseModel):
     limit: int = Field(
         default=20,
         ge=1,
-        le=100
+        le=100,
     )
 
     min_event_count: int = Field(
         default=0,
-        ge=0
+        ge=0,
     )
 
     run_id_contains: str | None = Field(
         default=None,
         min_length=1,
-        max_length=80
+        max_length=80,
     )
 
 
@@ -123,7 +113,7 @@ class RunSearchRequest(BaseModel):
     @classmethod
     def normalize_run_id_contains(
         cls,
-        value: str | None
+        value: str | None,
     ) -> str | None:
 
         if value is None:
@@ -142,3 +132,70 @@ class RunSearchRequest(BaseModel):
 
 
         return value
+
+
+# ==========================================
+# Day 9：数据库 Run CRUD
+# ==========================================
+
+class DbRunCreateRequest(
+    BaseModel
+):
+
+    model_config = ConfigDict(
+        extra="forbid",
+        str_strip_whitespace=True,
+    )
+
+    run_id: str = Field(
+        min_length=1,
+        max_length=128,
+    )
+
+    event_count: int = Field(
+        default=0,
+        ge=0,
+    )
+
+
+class DbRunUpdateRequest(
+    BaseModel
+):
+
+    model_config = ConfigDict(
+        extra="forbid"
+    )
+
+    event_count: int = Field(
+        ge=0
+    )
+
+
+class DbRunResponse(
+    BaseModel
+):
+
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
+    id: int
+
+    run_id: str
+
+    event_count: int
+
+    created_at: datetime
+
+
+class DbRunListResponse(
+    BaseModel
+):
+
+    count: int = Field(
+        ge=0
+    )
+
+    records: list[
+        DbRunResponse
+    ]
